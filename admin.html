@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Dashboard</title>
+</head>
+<body>
+
+<h2>Filters</h2>
+<select id="filterCategory">
+    <option value="All">All</option>
+    <option>Auto</option>
+    <option>Car</option>
+    <option>Truck</option>
+    <option>Bus</option>
+</select>
+
+<select id="filterAvailability">
+    <option value="All">All</option>
+    <option value="Available">Available</option>
+    <option value="Unavailable">Unavailable</option>
+</select>
+
+<button id="clearFilter">Clear Filter</button>
+
+<hr>
+
+<h2>Add Fleet</h2>
+
+Reg No: <input id="reg"><br><br>
+Category:
+<select id="category">
+    <option>Auto</option>
+    <option>Car</option>
+    <option>Truck</option>
+    <option>Bus</option>
+</select>
+<br><br>
+
+Driver Name: <input id="driver"><br><br>
+
+Available:
+<input type="checkbox" id="available"><br><br>
+
+<button id="addBtn">Add Fleet</button>
+
+<hr>
+
+<h2>Vehicles</h2>
+<div id="cards"></div>
+
+<script>
+    let fleets = [];
+
+    // Add Fleet
+    document.getElementById("addBtn").onclick = function () {
+        let reg = document.getElementById("reg").value;
+        let category = document.getElementById("category").value;
+        let driver = document.getElementById("driver").value;
+        let available = document.getElementById("available").checked ? "Available" : "Unavailable";
+
+        if (!reg || !driver) {
+            alert("Please fill all fields");
+            return;
+        }
+
+        fleets.push({ reg, category, driver, available });
+        render();
+    };
+
+    // Render cards
+    function render() {
+        let cards = document.getElementById("cards");
+        cards.innerHTML = "";
+
+        let catFilter = document.getElementById("filterCategory").value;
+        let availFilter = document.getElementById("filterAvailability").value;
+
+        fleets.forEach((f, i) => {
+            
+            if (catFilter !== "All" && f.category !== catFilter) return;
+            if (availFilter !== "All" && f.available !== availFilter) return;
+
+            let card = document.createElement("div");
+            card.style.border = "1px solid black";
+            card.style.padding = "10px";
+            card.style.margin = "10px";
+
+            card.innerHTML = `
+                <p><b>${f.reg}</b></p>
+                <p>Category: ${f.category}</p>
+                <p>Driver: ${f.driver}</p>
+                <p>Status: ${f.available}</p>
+                <button onclick="updateDriver(${i})">Update Driver</button>
+                <button onclick="toggleAvail(${i})">Change Availability</button>
+                <button onclick="deleteFleet(${i})">Delete</button>
+            `;
+
+            cards.appendChild(card);
+        });
+    }
+
+    // Update Driver
+    function updateDriver(i) {
+        let newName = prompt("Enter new driver name:");
+        if (newName) {
+            fleets[i].driver = newName;
+            render();
+        }
+    }
+
+    // Change Availability
+    function toggleAvail(i) {
+        fleets[i].available = fleets[i].available === "Available" ? "Unavailable" : "Available";
+        render();
+    }
+
+    // Delete Vehicle
+    function deleteFleet(i) {
+        if (confirm("Delete vehicle?")) {
+            fleets.splice(i, 1);
+            render();
+        }
+    }
+
+    // Clear Filters
+    document.getElementById("clearFilter").onclick = function () {
+        document.getElementById("filterCategory").value = "All";
+        document.getElementById("filterAvailability").value = "All";
+        render();
+    };
+
+    // Re-render on filter change
+    document.getElementById("filterCategory").onchange = render;
+    document.getElementById("filterAvailability").onchange = render;
+</script>
+
+</body>
+</html>
